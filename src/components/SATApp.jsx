@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
-import { QUESTIONS, CATS, DIFFS, rawToScaled } from "@/lib/questions";
+import { QUESTIONS, CATS, DIFFS, rawToScaled, PRESET_EXAMS } from "@/lib/questions";
 import MathText from "@/components/MathText";
 import QuestionChart from "@/components/QuestionChart";
 
@@ -120,7 +120,7 @@ export default function SATApp() {
   async function loadData(prof) {
     // Load exams
     const { data: ex } = await supabase.from("exams").select("*").order("created_at", { ascending: false });
-    setExams(ex || []);
+    setExams([...(PRESET_EXAMS || []), ...(ex || [])]);
 
     // Load results (RLS handles filtering)
     const { data: res } = await supabase.from("results").select("*").order("created_at", { ascending: true });
@@ -589,7 +589,7 @@ export default function SATApp() {
             <div style={{display:"flex",gap:8,alignItems:"center"}}>
               <Pill color="#818cf8">{attempts.length} attempts</Pill>
               {attempts.length>0 && <Pill color="#fbbf24">Avg SAT {avgS}</Pill>}
-              <button style={{...T.btn,...T.dan,padding:"6px 12px",fontSize:12}} onClick={()=>deleteExam(ex.id)}>Delete</button>
+              {ex.preset ? <Pill color="#22c55e">Built-in</Pill> : <button style={{...T.btn,...T.dan,padding:"6px 12px",fontSize:12}} onClick={()=>deleteExam(ex.id)}>Delete</button>}
             </div>
           </div>;
         })}
